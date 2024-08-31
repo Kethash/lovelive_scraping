@@ -2,25 +2,19 @@ from typing import Generator
 from bs4 import BeautifulSoup
 import requests
 from functools import reduce
-from functions import get_titles_and_audios
+from functions import extract_page_urls, get_titles_and_audios
 
 BASE_URL = "https://love-live.fandom.com"
 
 r = requests.get(f"{BASE_URL}/wiki/Songs_BPM_List")
 
-soup = BeautifulSoup(r.text, features="html.parser")
+titles_urls = extract_page_urls(BeautifulSoup(r.text, features="html.parser"))
 
-tables = soup.find_all("table")
 
-table_bodies =[table.find('tbody') for table in tables]
-table_rows = [table.find_all('tr') for table in tables]
-table_rows = reduce(lambda x,y: x+y, table_rows)
-table_cells = [table.find('td') for table in table_rows]
-table_hrefs = [table.find('a') for table in table_cells if table is not None]
-titles_urls = [table.get('href') for table in table_hrefs]
-
+print("Beginning scraping !")
+print(f"There are {len(titles_urls)} titles to scrap !")
 titles_and_audios: Generator[tuple[str, str, str], None, None] = get_titles_and_audios(BASE_URL, titles_urls)
-
+print("Writing to csv")
 
 with open("output.csv", 'w') as f:
     f.write("title,audio_url,link\n")

@@ -1,5 +1,5 @@
-import logging
 from functools import reduce
+from tqdm import tqdm
 from typing import Generator
 
 import requests
@@ -7,17 +7,20 @@ from bs4 import BeautifulSoup
 
 
 def get_titles_and_audios(base_url: str, titles_urls: list[str]) -> Generator[tuple[str, str, str], None, None]:
-    for title_url in titles_urls:
+
+    for title_url in tqdm(titles_urls):
         try:
             full_url: str = f"{base_url}/{title_url}"
             title_page = requests.get(full_url)
             tables = BeautifulSoup(title_page.text, features="html.parser").find_all("table", class_="article-table")
             tables_rows = extract_rows(tables)
-            for i, j in zip(extract_titles(tables_rows), extract_urls(tables_rows)):
+            for i, j in zip(extract_titles(tables_rows), extract_audio_urls(tables_rows)):
                 yield i.strip(), str(j).strip(), full_url.strip()
-        
+            
         except Exception as e:
             raise Exception
+
+
 
 def extract_rows(tables: list) -> list:
     tables_rows = [table.find_all('td') for table in tables]
@@ -35,7 +38,7 @@ def extract_titles(tables_rows: list) -> list:
     titles = [title.text for title in tables_rows][1::4]
     return titles
 
-def extract_urls(tables_rows: list) -> list:
+def extract_audio_urls(tables_rows: list) -> list:
     audios_urls = []
     for audio in tables_rows[3::4]:
         if audio.find('audio') is not None:
@@ -43,3 +46,14 @@ def extract_urls(tables_rows: list) -> list:
         else:
             audios_urls.append(None)
     return audios_urls
+
+def extract_page_urls(soup: BeautifulSoup) -> list:
+    tables = soup.find_all("table")
+
+    table_rows = [table.find_all('tr') for table in tables]
+    table_rows = reduce(lambda x,y: x+y, table_rows)
+    table_cells = [table.find('td') for table in table_rows]
+    table_hrefs = [table.find('a') for table in table_cells if table is not None]
+    titles_urls = [table.get('href') for table in table_hrefs]
+
+    return titles_urls
