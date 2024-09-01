@@ -7,6 +7,14 @@ from bs4 import BeautifulSoup
 
 
 def get_titles_and_audios(url: str) -> Generator[tuple[str, str, str], None, None]:
+    """get_titles_and_audios
+    -----
+    Fetch the titles and the audio source of a song in its page
+    Params:
+        url (str): The url of the song
+    Returns:
+        urls_and_sources (Generator[tuple[str,str,str], None, None])
+    """
 
     try:
         title_page = requests.get(url)
@@ -21,6 +29,14 @@ def get_titles_and_audios(url: str) -> Generator[tuple[str, str, str], None, Non
 
 
 def extract_rows(tables: list) -> list:
+    """extract_rows
+    -----
+    Extracts the rows of the scraped table
+    Params:
+        tables (list): The HTML tables
+    Returns:
+        tables_rows (list): The scraped HTML table rows
+    """
     tables_rows = [table.find_all('td') for table in tables]
     tables_rows = reduce(lambda x, y: x + y, tables_rows)
     idx = 0
@@ -33,10 +49,26 @@ def extract_rows(tables: list) -> list:
     return tables_rows
 
 def extract_titles(tables_rows: list) -> list:
+    """extract_titles
+    -----
+    Extract the titles
+    Params:
+        tables_rows (list): The list of the extracted tables
+    Returns:
+        titles (list): The titles
+    """
     titles = [title.text for title in tables_rows][1::4]
     return titles
 
 def extract_audio_urls(tables_rows: list) -> list:
+    """extract_audio_urls
+    -----
+    Extract the audio source urls
+    Params:
+        tables_rows (list): The list of the extracted tables
+    Returns:
+        audio_urls (list): The audio source urls
+    """
     audios_urls = []
     for audio in tables_rows[3::4]:
         if audio.find('audio') is not None:
@@ -46,6 +78,14 @@ def extract_audio_urls(tables_rows: list) -> list:
     return audios_urls
 
 def extract_page_urls(soup: BeautifulSoup) -> list:
+    """extract_page_urls
+    -----
+    Scrapes the page by its url
+    Params:
+        soup (BeautifulSoup): The soup of the page
+    Returns:
+        titles_urls (list): The urls of the titles
+    """
     tables = soup.find_all("table")
 
     table_rows = [table.find_all('tr') for table in tables]
