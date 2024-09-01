@@ -6,15 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_titles_and_audios(base_url: str, title_url: str) -> Generator[tuple[str, str, str], None, None]:
+def get_titles_and_audios(url: str) -> Generator[tuple[str, str, str], None, None]:
 
     try:
-        full_url: str = f"{base_url}/{title_url}"
-        title_page = requests.get(full_url)
+        title_page = requests.get(url)
         tables = BeautifulSoup(title_page.text, features="html.parser").find_all("table", class_="article-table")
         tables_rows = extract_rows(tables)
         for i, j in zip(extract_titles(tables_rows), extract_audio_urls(tables_rows)):
-            yield i.strip(), str(j).strip(), full_url.strip()
+            yield i.strip(), str(j).strip(), url.strip()
         
     except Exception as e:
         raise Exception

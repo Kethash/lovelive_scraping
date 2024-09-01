@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 from functions import extract_page_urls, get_titles_and_audios
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 
 BASE_URL = "https://love-live.fandom.com"
 
@@ -21,7 +21,7 @@ print("Writing to csv")
 def run_multi(title_url: str):
 
 
-    titles_and_audios: Generator[tuple[str, str, str], None, None] = get_titles_and_audios(BASE_URL, title_url)
+    titles_and_audios: Generator[tuple[str, str, str], None, None] = get_titles_and_audios(f"{BASE_URL}/{title_url}")
 
     with open("output.csv", 'a') as f:
         for ta in titles_and_audios:
