@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 from functions import extract_page_urls, get_titles_and_audios
-from multiprocessing import Pool, Process
+from multiprocessing import Pool
 
 BASE_URL = "https://love-live.fandom.com"
 
