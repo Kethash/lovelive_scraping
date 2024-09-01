@@ -40,3 +40,5 @@ def run_multi(song_url: str):
 # Running in a pool with the size of the number of cpus inside the machine
 with Pool(os.cpu_count()) as p:
     p.map(run_multi, songs_urls)
+
+print("Done ! Written in output.csv")
