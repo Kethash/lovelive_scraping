@@ -18,7 +18,7 @@ print("Beginning scraping !")
 print(f"There are {len(group_name_and_page_urls)} titles to scrap !")
 
 output = open("output.csv", "w")
-output.write("group,title,audio_url,link\n")
+output.write("group,title,audio_url,link,image_link,image_alt\n")
 output.close()
 
 print("Writing to csv")
@@ -36,7 +36,7 @@ def run_multi(group_name_and_page_url: str):
     # Writing the outputs in csv
     with open("output.csv", 'a') as f:
         for ta in titles_and_audios:
-            f.write(f'"{group_name_and_page_url[0]}","{ta[0]}","{ta[1]}","{ta[2]}"\n')
+            f.write(f'"{group_name_and_page_url[0]}","{ta[0]}","{ta[1]}","{ta[2]}","{ta[3]}","{ta[4]}"\n')
 
 # Running in a pool with the size of the number of cpus inside the machine
 with Pool(os.cpu_count()) as p:

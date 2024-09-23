@@ -19,8 +19,9 @@ def get_titles_and_audios(url: str) -> Generator[tuple[str, str, str], None, Non
         title_page = requests.get(url)
         tables = BeautifulSoup(title_page.text, features="html.parser").find_all("table", class_="article-table")
         tables_rows = extract_rows(tables)
+        image_src, image_alt = extract_image(url)
         for i, j in zip(extract_titles(tables_rows), extract_audio_urls(tables_rows)):
-            yield i.strip(), str(j).strip(), url.strip()
+            yield i.strip(), str(j).strip(), url.strip(), image_src.strip(), image_alt.strip()
         
     except Exception as e:
         raise Exception
@@ -100,3 +101,19 @@ def extract_page_urls(soup: BeautifulSoup) -> list[tuple[str, str]]:
             result.append((artist, title_url.get('href').strip()))
 
     return result
+
+def extract_image(url: str) -> tuple[str, str]:
+    """extract_image
+    -----
+    Extract the song image and alt
+    Params:
+        url (str): the url of the song page
+    Returns:
+        image_infos (tuple[str, str]): The image url and the alt of the image
+    """
+    title_page = requests.get(url)
+    image = BeautifulSoup(title_page.text, features="html.parser").find("img", class_="pi-image-thumbnail")
+    source = image['src']
+    alt = image['alt']
+
+    return source, alt
